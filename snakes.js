@@ -1,6 +1,35 @@
 function init() {
     console.log("init");
 
+    // to clean local storage
+    // localStorage.clear();
+
+
+    // loading scores from local-storage if supported
+    if (storageAvailable('localStorage')) {
+        // Yippee! We can use localStorage awesomeness
+        if (localStorage.getItem("ScoresArray") == null) {
+            let array = [];
+            array.push("firstHuman - 0, ");
+            // local storage only supports strings
+            localStorage.setItem("ScoresArray", JSON.stringify(array));
+        } else {
+            // converting string to array
+            let scores = JSON.parse(localStorage.getItem("ScoresArray"));
+            console.log(scores);
+            scoreDiv.innerHTML = "";
+            scores.forEach((element) => {
+                scoreDiv.innerHTML += element;
+            })
+        }
+
+
+    }
+    else {
+        // Too bad, no localStorage for us
+    }
+
+
     canvas = document.getElementById('myCanvas');
     pen = canvas.getContext('2d');
     W = canvas.width;
@@ -100,7 +129,6 @@ function init() {
 
     //event listener
     document.addEventListener('keydown', (event) => {
-        console.log("you pressed a key");
         // console.log(event);
         if (event.key == "ArrowRight") {
             snake.direction = "right";
@@ -141,11 +169,23 @@ function gameLoop() {
 
     if (game_over) {
         player = prompt("your score - " + score + " .enter your Name below");
-        if (player == "") {
-            scoreDiv.innerHTML += "unknown" + " - " + score + ", ";
-        } else {
-            scoreDiv.innerHTML += player + " - " + score + ", ";
+        if (player === "") {
+            player = "unknown";
         }
+
+        // saving scores in html local storage
+        // storage available is function in localStorage.js
+        if (storageAvailable('localStorage')) {
+            let scores = JSON.parse(localStorage.getItem("ScoresArray"));
+
+            scores.push(player + " - " + score + ", ");
+            console.log(scores);
+            localStorage.setItem("ScoresArray", JSON.stringify(scores));
+        }
+        else {
+            //scoreDiv.innerHTML += player + " - " + score + ", ";
+        }
+
 
         let restart = window.confirm("Press OK to restart");
         if (restart) {
